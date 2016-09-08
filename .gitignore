@@ -1,0 +1,22 @@
+# Logs
+logs
+*.log
+
+# Xslx files
+*.xslx*
+
+# Runtime data
+pids
+*.pid
+*.seed
+dist
+
+#IDE
+**/.idea
+
+#OS
+.DS_Store
+.tmp
+
+#scrap
+*.scrap*
