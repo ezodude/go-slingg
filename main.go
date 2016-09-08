@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/tealeg/xlsx"
+	"github.com/ezodude/go-slingg/xlsx"
 	"os"
 )
 
@@ -11,18 +11,12 @@ func main() {
 
 	fmt.Println("Let's go-slingg")
 	excelFileName := "sample.xlsx"
-	xlFile, err := xlsx.OpenFile(excelFileName)
+	err := xlsx.Load(excelFileName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
 
-	sheet := xlFile.Sheets[0]
-	for _, row := range sheet.Rows {
-		for _, cell := range row.Cells {
-			cellValue, _ := cell.String()
-			fmt.Printf("%s\n", cellValue)
-		}
-	}
+	xlsx.Dump()
 }
