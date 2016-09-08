@@ -2,8 +2,8 @@
 logs
 *.log
 
-# Xslx files
-*.xslx*
+# Sample files
+sample*.*
 
 # Runtime data
 pids
