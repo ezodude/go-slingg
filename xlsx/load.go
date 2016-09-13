@@ -8,7 +8,6 @@ import (
 )
 
 var loaded *txlsx.File
-var err error
 
 func Load(filename string) (err error) {
 	loaded, err = txlsx.OpenFile(filename)
