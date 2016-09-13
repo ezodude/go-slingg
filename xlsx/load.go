@@ -1,6 +1,7 @@
 package xlsx
 
 import (
+	"encoding/json"
 	"fmt"
 	txlsx "github.com/tealeg/xlsx"
 	"strings"
@@ -24,12 +25,12 @@ func Print() {
 	}
 }
 
-func Json() error {
-	var result []map[string]interface{}
+func Json() (data []byte, err error) {
+	var base []map[string]interface{}
 
 	headers, err := headers()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for rowIndex, row := range loaded.Sheets[0].Rows {
@@ -43,13 +44,10 @@ func Json() error {
 			jsonObject[headers[cellIndex]] = cellValue
 		}
 
-		result = append(result, jsonObject)
+		base = append(base, jsonObject)
 	}
 
-	fmt.Println("headers", headers)
-	fmt.Println("result", result)
-
-	return nil
+	return json.Marshal(base)
 }
 
 func headers() (keys []string, err error) {

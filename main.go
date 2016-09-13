@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Let's go-slingg")
 	excelFileName := "sample.xlsx"
 	err := xlsx.Load(excelFileName)
 
@@ -16,6 +15,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	xlsx.Json()
-	// xlsx.Print()
+	json, err := xlsx.Json()
+	fmt.Printf("%s\n", json)
 }
