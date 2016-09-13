@@ -13,7 +13,7 @@ func Load(filename string) (err error) {
 	return err
 }
 
-func Dump() {
+func Print() {
 	sheet := loaded.Sheets[0]
 	for _, row := range sheet.Rows {
 		for _, cell := range row.Cells {
