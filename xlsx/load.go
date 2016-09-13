@@ -24,27 +24,45 @@ func Print() {
 	}
 }
 
-func Json() {
-	var result = make(map[string]interface{})
+func Json() error {
+	var result []map[string]interface{}
 
-	// for _, row := range loaded.Sheets[0].Rows {
-	// 	for _, cell := range row.Cells {
-	// 		cellValue, _ := cell.String()
+	headers, err := headers()
+	if err != nil {
+		return err
+	}
 
-	// 	}
-	// }
-	fmt.Println("headers", headers())
+	for rowIndex, row := range loaded.Sheets[0].Rows {
+		if rowIndex == 0 {
+			continue
+		}
+
+		var jsonObject = make(map[string]interface{})
+		for cellIndex, cell := range row.Cells {
+			cellValue, _ := cell.String()
+			jsonObject[headers[cellIndex]] = cellValue
+		}
+
+		result = append(result, jsonObject)
+	}
+
+	fmt.Println("headers", headers)
 	fmt.Println("result", result)
+
+	return nil
 }
 
-func headers() []string {
+func headers() (keys []string, err error) {
 	var result []string
 
 	row := loaded.Sheets[0].Rows[0]
 	for _, cell := range row.Cells {
-		value, _ := cell.String()
+		value, err := cell.String()
+		if err != nil {
+			return nil, err
+		}
 		result = append(result, strings.ToLower(value))
 	}
 
-	return result
+	return result, nil
 }
