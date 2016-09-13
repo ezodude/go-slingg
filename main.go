@@ -16,5 +16,6 @@ func main() {
 		os.Exit(1)
 	}
 
+	xlsx.Json()
 	xlsx.Print()
 }
