@@ -17,6 +17,24 @@ func doError(err error) {
 	}
 }
 
+func batcher(data []string, size int, fn func(batch []string, batchMarker int64, wg *sync.WaitGroup)) {
+	var wg sync.WaitGroup
+	var batch []string
+	var batchIndex int64
+
+	for index, entry := range data {
+		batch = append(batch, entry)
+
+		if index%size == 0 {
+			wg.Add(1)
+			batchIndex++
+			go fn(batch, batchIndex, &wg)
+			batch = nil
+		}
+	}
+	wg.Wait()
+}
+
 func doPost(batch []string, batchMarker int64, wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -35,20 +53,5 @@ func main() {
 
 	data, err := xlsx.Json()
 	doError(err)
-
-	var wg sync.WaitGroup
-	var batch []string
-	var batchIndex int64
-
-	for index, entry := range data {
-		batch = append(batch, entry)
-
-		if index%10 == 0 {
-			wg.Add(1)
-			batchIndex++
-			go doPost(batch, batchIndex, &wg)
-			batch = nil
-		}
-	}
-	wg.Wait()
+	batcher(data, 10, doPost)
 }
