@@ -18,7 +18,10 @@ func main() {
 	err := xlsx.Load(excelFileName)
 	doError(err)
 
-	json, err := xlsx.Json()
+	data, err := xlsx.Json()
 	doError(err)
-	fmt.Printf("%s\n", json)
+
+	for _, entry := range data {
+		fmt.Println(string(entry))
+	}
 }

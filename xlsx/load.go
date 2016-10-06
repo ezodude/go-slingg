@@ -24,8 +24,8 @@ func Print() {
 	}
 }
 
-func Json() (data []byte, err error) {
-	var base []map[string]interface{}
+func Json() (data []string, err error) {
+	var result []string
 
 	headers, err := headers()
 	if err != nil {
@@ -43,10 +43,15 @@ func Json() (data []byte, err error) {
 			jsonObject[headers[cellIndex]] = cellValue
 		}
 
-		base = append(base, jsonObject)
+		jsonBytes, err := json.Marshal(jsonObject)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, string(jsonBytes))
 	}
 
-	return json.Marshal(base)
+	return result, nil
 }
 
 func headers() (keys []string, err error) {
