@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/ezodude/go-slingg/xlsx"
+	"io"
+	"net/http"
 	"os"
 )
 
@@ -22,6 +25,9 @@ func main() {
 	doError(err)
 
 	for _, entry := range data {
-		fmt.Println(string(entry))
+		payload := bytes.NewBufferString(entry)
+
+		res, _ := http.Post("https://httpbin.org/post", "application/json; charset=utf-8", payload)
+		io.Copy(os.Stdout, res.Body)
 	}
 }
