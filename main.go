@@ -17,7 +17,12 @@ func doError(err error) {
 	}
 }
 
-func batcher(data []string, size int, fn func(batch []string, batchMarker int64)) {
+type Batch struct {
+	Data   []string
+	Marker int64
+}
+
+func batcher(data []string, size int, fn func(b *Batch)) {
 	var wg sync.WaitGroup
 	var batch []string
 	var batchIndex int64
@@ -28,11 +33,11 @@ func batcher(data []string, size int, fn func(batch []string, batchMarker int64)
 		if index%size == 0 {
 			batchIndex++
 
-			go func(batchData []string, batchMarker int64) {
+			go func(b *Batch) {
 				wg.Add(1)
-				fn(batchData, batchMarker)
+				fn(b)
 				wg.Done()
-			}(batch, batchIndex)
+			}(&Batch{Data: batch, Marker: batchIndex})
 
 			batch = nil
 		}
@@ -40,9 +45,9 @@ func batcher(data []string, size int, fn func(batch []string, batchMarker int64)
 	wg.Wait()
 }
 
-func postWorker(batch []string, batchMarker int64) {
-	fmt.Printf("Starting batch [%v]\n", batchMarker)
-	for _, json := range batch {
+func postWorker(b *Batch) {
+	fmt.Printf("Starting batch [%v]\n", b.Marker)
+	for _, json := range b.Data {
 		payload := bytes.NewBufferString(json)
 		res, _ := http.Post("https://httpbin.org/post", "application/json; charset=utf-8", payload)
 		io.Copy(os.Stdout, res.Body)
