@@ -3,11 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/ezodude/go-slingg/batching"
 	"github.com/ezodude/go-slingg/xlsx"
 	"io"
 	"net/http"
 	"os"
-	"sync"
 )
 
 func doError(err error) {
@@ -17,35 +17,7 @@ func doError(err error) {
 	}
 }
 
-type Batch struct {
-	Data   []string
-	Marker int64
-}
-
-func batcher(data []string, size int, fn func(b *Batch)) {
-	var wg sync.WaitGroup
-	var batch []string
-	var batchIndex int64
-
-	for index, entry := range data {
-		batch = append(batch, entry)
-
-		if index%size == 0 {
-			batchIndex++
-
-			go func(b *Batch) {
-				wg.Add(1)
-				fn(b)
-				wg.Done()
-			}(&Batch{Data: batch, Marker: batchIndex})
-
-			batch = nil
-		}
-	}
-	wg.Wait()
-}
-
-func postWorker(b *Batch) {
+func postWorker(b *batching.Batch) {
 	fmt.Printf("Starting batch [%v]\n", b.Marker)
 	for _, json := range b.Data {
 		payload := bytes.NewBufferString(json)
@@ -61,5 +33,5 @@ func main() {
 
 	data, err := xlsx.Json()
 	doError(err)
-	batcher(data, 10, postWorker)
+	batching.Batcher(data, 10, postWorker)
 }
