@@ -2,10 +2,9 @@ package main
 
 import (
 	"bytes"
-	"errors"
-	"flag"
 	"fmt"
 	"github.com/ezodude/go-slingg/batching"
+	"github.com/ezodude/go-slingg/cli"
 	"github.com/ezodude/go-slingg/xlsx"
 	"io"
 	"net/http"
@@ -28,38 +27,14 @@ func postWorker(url string, data []string) {
 }
 
 func main() {
-	var excelFileName string
-
-	targetUrlPtr := flag.String("url", "", "URL to http POST to.")
-	flag.Usage = func() {
-		fmt.Printf("\n  Usage: %s [flags] xlsx_file\n", os.Args[0])
-		fmt.Printf("\n  Slingg translates rows in an .XLSX file to JSON POST requests.\n")
-		fmt.Printf("\n  Options:\n\n")
-		flag.PrintDefaults()
-	}
-
-	flag.Parse()
-
-	for index, arg := range flag.Args() {
-		if index == 0 {
-			excelFileName = arg
-		}
-	}
-
-	if len(*targetUrlPtr) == 0 {
-		doError(errors.New("No url specified!"))
-	}
-
-	if len(excelFileName) == 0 {
-		doError(errors.New("No excel filename specified!"))
-	}
-
-	err := xlsx.Load(excelFileName)
+	params, err := cli.Parse()
 	doError(err)
+
+	doError(xlsx.Load(params.ExcelFileName))
 
 	data, err := xlsx.Json()
 	doError(err)
 	batching.Batcher(data, 10, func(data []string) {
-		postWorker(*targetUrlPtr, data)
+		postWorker(*params.Url, data)
 	})
 }
