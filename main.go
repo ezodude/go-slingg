@@ -17,9 +17,8 @@ func doError(err error) {
 	}
 }
 
-func postWorker(b *batching.Batch) {
-	fmt.Printf("Starting batch [%v]\n", b.Marker)
-	for _, json := range b.Data {
+func postWorker(data []string) {
+	for _, json := range data {
 		payload := bytes.NewBufferString(json)
 		res, _ := http.Post("https://httpbin.org/post", "application/json; charset=utf-8", payload)
 		io.Copy(os.Stdout, res.Body)

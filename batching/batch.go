@@ -1,15 +1,11 @@
 package batching
 
 import (
+	"fmt"
 	"sync"
 )
 
-type Batch struct {
-	Data   []string
-	Marker int64
-}
-
-func Batcher(data []string, size int, fn func(b *Batch)) {
+func Batcher(data []string, size int, fn func(data []string)) {
 	var wg sync.WaitGroup
 	var batch []string
 	var batchIndex int64
@@ -20,11 +16,12 @@ func Batcher(data []string, size int, fn func(b *Batch)) {
 		if index%size == 0 {
 			batchIndex++
 
-			go func(b *Batch) {
+			go func(data []string, marker int64) {
 				wg.Add(1)
-				fn(b)
+				fmt.Printf("Starting batch [%v]\n", marker)
+				fn(data)
 				wg.Done()
-			}(&Batch{Data: batch, Marker: batchIndex})
+			}(batch, batchIndex)
 
 			batch = nil
 		}
